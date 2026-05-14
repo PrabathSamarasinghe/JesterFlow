@@ -4,17 +4,10 @@ on:
   pull_request:
     branches:
       - main
-
-  workflow_dispatch:
-    inputs:
-      deploy_prod:
-        description: "Deploy to production?"
-        required: true
-        type: choice
-        default: "no"
-        options:
-          - "no"
-          - "yes"
+      - development
+  
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   unit-tests:
@@ -51,24 +44,12 @@ jobs:
         run: npm run test:integration
 
   deploy-dev:
-    name: Deploy Dev
+    name: Deploy to Development
     runs-on: ubuntu-latest
     needs: integration-tests
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'development'
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to dev
-        run: echo "Deploying to dev"
-
-  deploy-prod:
-    name: Deploy Production
-    runs-on: ubuntu-latest
-    needs: deploy-dev
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_prod == 'yes'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to production
-        run: echo "Deploying to production"
+      - name: Deploy to Development Environment
+        run: echo "Deploying to development environment..." # Replace with actual deployment commands
+  
