@@ -2,7 +2,8 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 
-const csrfCookieSecret = process.env.CSRF_COOKIE_SECRET;
+const csrfCookieSecret = process.env.CSRF_COOKIE_SECRET ||
+  (process.env.NODE_ENV === 'test' ? 'test-csrf-cookie-secret' : undefined);
 
 if (!csrfCookieSecret) {
   throw new Error('CSRF_COOKIE_SECRET environment variable must be set');
