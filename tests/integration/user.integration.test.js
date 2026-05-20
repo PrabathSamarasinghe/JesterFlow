@@ -31,8 +31,8 @@ describe('User API Integration Tests', () => {
     });
   });
 
-  describe('POST /api/users', () => {
-    it('should create a new user', async () => {
+  describe('POST /api/users without CSRF token', () => {
+    it('should return 403 Forbidden', async () => {
       const newUser = {
         name: 'Test User',
         email: 'test@example.com'
@@ -41,8 +41,33 @@ describe('User API Integration Tests', () => {
       const res = await request(app)
         .post('/api/users')
         .send(newUser)
-        .expect(201);
+        .expect(403); // Expecting Forbidden due to missing CSRF token
       
+      expect(res.body).toEqual({ message: 'Invalid CSRF token' });
+    });
+  });
+
+  describe('POST /api/users with CSRF token', () => {
+    it('should create a new user', async () => {
+      const tokenRes = await request(app)
+        .get('/api/csrf-token')
+        .expect(200);
+      const csrfToken = tokenRes.body.csrfToken;
+
+      const cookie = tokenRes.headers['set-cookie'][0].split(';')[0];
+
+      const newUser = {
+        name: 'Test User',
+        email: 'test@example.com'
+      };
+
+      const res = await request(app)
+        .post('/api/users')
+        .set('Cookie', cookie)
+        .set('x-csrf-token', csrfToken)
+        .send(newUser)
+        .expect(201);
+
       expect(res.body).toHaveProperty('id');
       expect(res.body.name).toBe(newUser.name);
       expect(res.body.email).toBe(newUser.email);
