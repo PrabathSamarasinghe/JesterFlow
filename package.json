@@ -10,11 +10,15 @@
     "test": "jest",
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration",
+    "test:e2e": "jest tests/e2e --testTimeout=60000",
+    "test:all": "jest --testTimeout=60000",
     "start": "node index.js"
   },
   "devDependencies": {
     "jest": "^30.4.2",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "selenium-webdriver": "^4.15.0",
+    "wait-on": "^7.0.1"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",

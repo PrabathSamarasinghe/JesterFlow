@@ -3,13 +3,15 @@ const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 
 const csrfCookieSecret = process.env.CSRF_COOKIE_SECRET ||
-  (process.env.NODE_ENV === 'test' ? 'test-csrf-cookie-secret' : undefined);
+  (process.env.NODE_ENV === 'test' ? 'test-csrf-cookie-secret' : 
+   process.env.NODE_ENV === 'production' ? undefined : 'dev-csrf-cookie-secret');
 
 if (!csrfCookieSecret) {
-  throw new Error('CSRF_COOKIE_SECRET environment variable must be set');
+  throw new Error('CSRF_COOKIE_SECRET environment variable must be set for production');
 }
 
 const app = express();
+const path = require('path');
 
 app.use(express.json());
 app.use(cookieParser(csrfCookieSecret));
@@ -21,6 +23,9 @@ app.use(csurf({
     secure: process.env.NODE_ENV === 'production'
   }
 }));
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/api/csrf-token', (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
