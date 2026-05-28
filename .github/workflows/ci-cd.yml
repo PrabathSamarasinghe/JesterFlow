@@ -35,7 +35,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm audit --audit-level=moderate || true
+      - run: npm audit --audit-level=high
 
   secrets-scan:
     name: Secrets Scan
@@ -110,9 +110,6 @@ jobs:
 
       - name: Start app
         run: npm start > /tmp/app.log 2>&1 &
-        env:
-          CSRF_COOKIE_SECRET: ci-test-secret
-          NODE_ENV: test
 
       - name: Wait for app
         run: npx wait-on http://localhost:3000 --timeout 30000
@@ -121,8 +118,6 @@ jobs:
         run: npm run test:e2e
         env:
           BROWSER: chromium
-          CSRF_COOKIE_SECRET: ci-test-secret
-          NODE_ENV: test
 
   docker-build:
     name: Build Docker Image
@@ -135,7 +130,6 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t my-app:${{ github.sha }} .
-        continue-on-error: true
 
   deploy-development:
     name: Deploy to Development
