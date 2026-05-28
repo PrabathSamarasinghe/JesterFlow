@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: 24
 
-      - run: npm ci
+      - run: npm install
 
       - run: npm audit --audit-level=high
 
@@ -66,7 +66,7 @@ jobs:
         with:
           node-version: 24
 
-      - run: npm ci
+      - run: npm install
 
       - run: npm run test:unit
 
