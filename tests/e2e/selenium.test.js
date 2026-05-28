@@ -2,6 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const edge = require('selenium-webdriver/edge');
 const path = require('path');
+const waitOn = require('wait-on');
 
 // Helper function to add delay
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -10,6 +11,12 @@ describe('Calculator Frontend - Selenium Tests', () => {
     let driver;
 
     beforeAll(async () => {
+        // Wait for server to be ready
+        await waitOn({ 
+            resources: ['http://localhost:3000'], 
+            timeout: 30000 
+        });
+
         // Use Chromium for CI/CD, Edge for local development
         const browser = process.env.BROWSER || 'edge';
         
@@ -41,7 +48,7 @@ describe('Calculator Frontend - Selenium Tests', () => {
                 .setEdgeOptions(options)
                 .build();
         }
-    }, 60000);  // 60 second timeout for setup
+    }, 120000);  // 120 second timeout for setup (includes server startup)
 
     afterAll(async () => {
         if (driver) {
