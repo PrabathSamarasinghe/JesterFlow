@@ -1,4 +1,5 @@
 const { Builder, By, until } = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
 const edge = require('selenium-webdriver/edge');
 const path = require('path');
 
@@ -9,16 +10,37 @@ describe('Calculator Frontend - Selenium Tests', () => {
     let driver;
 
     beforeAll(async () => {
-        // Setup Edge driver with options
-        const options = new edge.Options();
-        options.addArguments('--no-sandbox');
-        options.addArguments('--disable-dev-shm-usage');
-        options.addArguments('--disable-gpu');
+        // Use Chromium for CI/CD, Edge for local development
+        const browser = process.env.BROWSER || 'edge';
         
-        driver = await new Builder()
-            .forBrowser('MicrosoftEdge')
-            .setEdgeOptions(options)
-            .build();
+        let options;
+        let builder = new Builder();
+
+        if (browser === 'chromium') {
+            // For CI/CD environment
+            options = new chrome.Options();
+            options.addArguments('--headless=new');
+            options.addArguments('--no-sandbox');
+            options.addArguments('--disable-dev-shm-usage');
+            options.addArguments('--disable-gpu');
+            options.setChromeBinaryPath('/usr/bin/chromium-browser');
+            
+            driver = await builder
+                .forBrowser('chrome')
+                .setChromeOptions(options)
+                .build();
+        } else {
+            // For local development
+            options = new edge.Options();
+            options.addArguments('--no-sandbox');
+            options.addArguments('--disable-dev-shm-usage');
+            options.addArguments('--disable-gpu');
+            
+            driver = await builder
+                .forBrowser('MicrosoftEdge')
+                .setEdgeOptions(options)
+                .build();
+        }
     }, 60000);  // 60 second timeout for setup
 
     afterAll(async () => {
